@@ -145,8 +145,10 @@ class NeuralNetwork():
                 
                 sys.stdout.write('\riter: {}/{}; loss: {:2f};'.format(
                     idx+1, len(train_data), loss))
-            val_acc, val_loss = self.validation_score()
-            print("\nval_acc: {:2f}; val_loss: {:2f}".format(val_acc, val_loss/num_classes))
+
+            if validation_split is not None:
+	            val_acc, val_loss = self.validation_score()
+	            print("\nval_acc: {:2f}; val_loss: {:2f}".format(val_acc, val_loss/num_classes))
             print('-'*50)
 
     def save(self, path):
