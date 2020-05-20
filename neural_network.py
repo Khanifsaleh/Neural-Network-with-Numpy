@@ -172,7 +172,7 @@ class NeuralNetwork():
 
             if validation_split is not None:
                 val_acc, val_loss = self.score(self.labels_val, self.y_val, val=True)
-                print("\nval_acc: {:2f}; val_loss: {:2f}".format(val_acc, val_loss/num_classes))
+                print("\nval_acc: {:2f}; val_loss: {:2f}".format( val_acc, val_loss/num_classes))
             print('-'*75)
 
     def save(self, path):
