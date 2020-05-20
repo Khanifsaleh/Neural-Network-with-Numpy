@@ -39,4 +39,4 @@ nn.add_hidden(50, 'relu')
 nn.add_hidden(50, 'sigmoid')
 nn.add_output(10)
 
-nn.fit(images, labels, epochs=40, lr=0.0001, validation_split=0.25, shuffle=True)
+nn.fit(images, labels, epochs=40, lr=0.001, batch_size=16, validation_split=0.25, shuffle=True)
