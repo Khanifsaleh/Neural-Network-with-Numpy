@@ -7,6 +7,7 @@ class NeuralNetwork():
         self.w = {}
         self.b = {}
         self.h = {}
+        self.act = {}
         self.n_layers = 1
         
     def add_input(self, sz):
@@ -15,7 +16,7 @@ class NeuralNetwork():
     def add_hidden(self, sz, act):
         self.h[self.n_layers] = {}
         self.h[self.n_layers]['sz'] = sz
-        self.h[self.n_layers]['act'] = act
+        self.act[self.n_layers] = act
         if self.n_layers == 1:
             prev_sz = self.input_sz    
         else:
@@ -86,7 +87,7 @@ class NeuralNetwork():
                 self.h[i]['z'] = self.sigma(self.h[i-1]['a'], self.w[i], self.b[i])
             
             if i != self.n_layers:
-                self.h[i]['a'] = self.activation(self.h[i]['act'], self.h[i]['z'])
+                self.h[i]['a'] = self.activation(self.act[i], self.h[i]['z'])
             else:
                 self.h[i]['a'] = np.concatenate([self.softmax(self.h[i]['z'][:,j]).reshape(-1,1) 
                                                  for j in range(self.h[i]['z'].shape[1])], axis=1)
@@ -105,7 +106,7 @@ class NeuralNetwork():
                 
             else:
                 self.h[i]['dL/da'] = np.dot(self.w[i+1], self.h[i+1]['dL/dz'])
-                self.h[i]['da/dz'] = self.activation_grad(self.h[i]['act'], self.h[i]['a'])
+                self.h[i]['da/dz'] = self.activation_grad(self.act[i], self.h[i]['a'])
                 self.h[i]['dL/dz'] = self.h[i]['dL/da'] * self.h[i]['da/dz']
                 if i!=1:
                     self.h[i]['dz/dw'] = [np.array([self.h[i-1]['a'][:,j],]*self.h[i]['sz']).T 
@@ -175,6 +176,26 @@ class NeuralNetwork():
                 print("\nval_acc: {:2f}; val_loss: {:2f}".format( val_acc, val_loss/num_classes))
             print('-'*75)
 
+    def load(self, path):
+        with open(path, 'rb') as f:
+            ckpt = pkl.load(f)
+        print("Load model ...")
+        print("Input dim : ({}, 1)".format(ckpt['input_sz']))
+        self.n_layers = ckpt['n_layers']
+        self.w = ckpt['w']
+        self.b = ckpt['b']
+        self.act = ckpt['act']
+        for i in range(self.n_layers):
+            i+=1
+            self.h[i] = {}
+
     def save(self, path):
+        ckpt = {
+            'input_sz': self.input_sz,
+            'n_layers': self.n_layers,
+            'w': self.w,
+            'b': self.b,
+            'act': self.act,
+        }
         with open(path, 'wb') as f:
-            pkl.dump(self.__dict__, f,2)
+            pkl.dump(ckpt, f,2)
